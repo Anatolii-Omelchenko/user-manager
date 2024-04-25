@@ -2,6 +2,7 @@ package com.clearsolutions.usermanager.exceptions;
 
 import com.clearsolutions.usermanager.exceptions.custom.BasicApplicationException;
 import com.clearsolutions.usermanager.exceptions.errors.ErrorResponse;
+import com.clearsolutions.usermanager.utils.Logger;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BasicApplicationException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(final BasicApplicationException ex) {
+        Logger.error(ex.getClass().getSimpleName(), ex.getMessage());
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, ex.getHttpStatus());
     }
@@ -43,6 +44,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleBadRequest(final Exception ex) {
+        Logger.error(ex.getClass().getSimpleName(), ex.getMessage());
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -58,6 +60,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponse> handleServerException(final Exception ex) {
+        Logger.error(ex.getClass().getSimpleName(), ex.getMessage());
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
