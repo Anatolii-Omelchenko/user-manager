@@ -8,8 +8,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: 'true'
-    hibernate:
-      ddl-auto: create-drop
+    show-sql: true
   application:
     name: user-manager
 
