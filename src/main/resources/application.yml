@@ -12,3 +12,7 @@ spring:
       ddl-auto: create-drop
   application:
     name: user-manager
+
+validation:
+  user:
+    minimumAge: 18
