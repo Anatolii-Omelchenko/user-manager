@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: "${DATABASE_URL:jdbc:postgresql://localhost:5432/users_db}"
+    username: "${DATABASE_USERNAME:postgres}"
+    password: "${DATABASE_PASSWORD:password}"
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: 'true'
+    hibernate:
+      ddl-auto: create-drop
+  application:
+    name: user-manager
