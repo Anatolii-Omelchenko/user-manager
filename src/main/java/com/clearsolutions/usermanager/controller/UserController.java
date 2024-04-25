@@ -34,8 +34,10 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<User>> getUsersByBirthDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+            @RequestParam(required = false, defaultValue = "1900-01-01")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false, defaultValue = "2200-01-01")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         validateDateRange(from, to);
         var users = userService.findUsersByBirthDateRange(from, to);
 
