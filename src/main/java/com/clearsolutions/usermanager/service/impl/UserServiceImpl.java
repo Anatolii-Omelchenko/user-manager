@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Implementation of the service for managing user-related operations.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
