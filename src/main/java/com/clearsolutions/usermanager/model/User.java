@@ -26,16 +26,21 @@ public class User {
     private Long id;
 
     @NotBlank
+    @Column(nullable = false)
     private String firstName;
 
     @NotBlank
+    @Column(nullable = false)
     private String lastName;
 
     @Email
+    @NotBlank
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NotNull
     @Past
+    @Column(nullable = false)
     private LocalDate birthDate;
 
     private String address;
