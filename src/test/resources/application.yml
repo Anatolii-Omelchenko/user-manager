@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///test_db
+    username: postgres
+    password: postgres
+
+validation:
+  user:
+    minimumAge: 18
