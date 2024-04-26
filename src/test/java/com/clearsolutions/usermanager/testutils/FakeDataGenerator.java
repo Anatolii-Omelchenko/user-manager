@@ -52,7 +52,7 @@ public class FakeDataGenerator {
                         switch (field) {
                             case FIRST_NAME -> this.firstName = null;
                             case LAST_NAME -> this.lastName = null;
-                            case EMAIL -> this.email = null;
+                            case EMAIL -> this.email = "invalid_email";
                             case BIRTH_DATE -> this.birthDate = null;
                         }
                     });
