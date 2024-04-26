@@ -82,10 +82,10 @@ public interface UserService {
     User updateEmail(Long id, String email) throws EntityNotFoundException, EntityAlreadyExistsException;
 
     /**
-     * Updates the birth date of an existing user.
+     * Updates the birthdate of an existing user.
      *
      * @param id       The unique identifier of the user.
-     * @param birthday The new birth date.
+     * @param birthday The new birthdate.
      * @return The updated user.
      * @throws EntityNotFoundException if no user with the specified ID is found.
      */

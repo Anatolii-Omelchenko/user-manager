@@ -82,7 +82,6 @@ public class UserServiceImpl implements UserService {
     public User updateEmail(Long id, String email) {
         var userForUpdate = getById(id);
         validateUniqueEmail(userForUpdate, email);
-
         userForUpdate.setEmail(email);
 
         return userForUpdate;
