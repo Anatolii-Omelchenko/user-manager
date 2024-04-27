@@ -11,6 +11,8 @@ import org.hibernate.proxy.HibernateProxy;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import static com.clearsolutions.usermanager.constants.ValidationMessages.*;
+
 @Builder
 @Getter
 @Setter
@@ -25,21 +27,21 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = FIRST_NAME_REQUIRED)
     @Column(nullable = false)
     private String firstName;
 
-    @NotBlank
+    @NotBlank(message = LAST_NAME_REQUIRED)
     @Column(nullable = false)
     private String lastName;
 
-    @Email
-    @NotBlank
+    @Email(message = INVALID_EMAIL_FORMAT)
+    @NotBlank(message = EMAIL_REQUIRED)
     @Column(unique = true, nullable = false)
     private String email;
 
-    @NotNull
-    @Past
+    @NotNull(message = BIRTH_DATE_REQUIRED)
+    @Past(message = BIRTH_DATE_PAST)
     @Column(nullable = false)
     private LocalDate birthDate;
 

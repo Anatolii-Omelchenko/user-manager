@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.clearsolutions.usermanager.constants.ValidationMessages.*;
 import static com.clearsolutions.usermanager.testutils.enums.UserFieldName.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
@@ -434,10 +435,10 @@ class UserControllerTest {
 
     private static Stream<Arguments> invalidUserFieldsProvider() {
         return Stream.of(
-                Arguments.of(EMAIL, "must be a well-formed email address"),
-                Arguments.of(FIRST_NAME, "must not be blank"),
-                Arguments.of(LAST_NAME, "must not be blank"),
-                Arguments.of(BIRTH_DATE, "must not be null")
+                Arguments.of(EMAIL, INVALID_EMAIL_FORMAT),
+                Arguments.of(FIRST_NAME, FIRST_NAME_REQUIRED),
+                Arguments.of(LAST_NAME, LAST_NAME_REQUIRED),
+                Arguments.of(BIRTH_DATE, BIRTH_DATE_REQUIRED)
         );
     }
 

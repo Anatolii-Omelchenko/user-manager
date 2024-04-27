@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = NONE)
 class UserServiceImplTest {
 
@@ -28,6 +30,8 @@ class UserServiceImplTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    public static final String USER_WITH_ID_NOT_FOUND = "User with ID: %d was not found!";
 
     @Test
     void testGetExistingUserById_ShouldNotThrowAnyException() {
@@ -44,13 +48,13 @@ class UserServiceImplTest {
     @Test
     void testGetNotExistingUserById_ShouldThrowEntityNotFoundException() {
         // Prepare
-        long id = 1L;
+        long userId = 1L;
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.getById(id));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.getById(userId));
     }
 
     @Test
@@ -109,37 +113,37 @@ class UserServiceImplTest {
     void testUpdateNotExistingUser_ShouldThrowEntityNotFoundException() {
         // Prepare
         long userId = 1L;
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
         var user = FakeDataGenerator.userBuilder().build();
         user.setId(userId);
 
         when(userRepository.existsById(userId)).thenReturn(false);
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!", EntityNotFoundException.class,
-                () -> userService.update(userId, user));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.update(userId, user));
     }
 
     @Test
     void testDeleteExistingUserById_ShouldNotThrowAnyException() {
         // Prepare
-        long id = 1L;
+        long userId = 1L;
 
-        when(userRepository.existsById(id)).thenReturn(true);
+        when(userRepository.existsById(userId)).thenReturn(true);
 
         // Execute & Verify
-        assertDoesNotThrow(() -> userService.deleteById(id));
+        assertDoesNotThrow(() -> userService.deleteById(userId));
     }
 
     @Test
     void testDeleteNotExistingUserById_ShouldThrowEntityNotFoundException() {
         // Prepare
-        long id = 1L;
+        long userId = 1L;
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
-        when(userRepository.existsById(id)).thenReturn(false);
+        when(userRepository.existsById(userId)).thenReturn(false);
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.deleteById(id));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.deleteById(userId));
     }
 
     @Test
@@ -163,12 +167,12 @@ class UserServiceImplTest {
         // Prepare
         long userId = 1L;
         var newFirstName = "John";
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.updateFirstName(userId, newFirstName));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.updateFirstName(userId, newFirstName));
     }
 
     @Test
@@ -192,12 +196,12 @@ class UserServiceImplTest {
         // Prepare
         long userId = 1L;
         var newLastName = "Doe";
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.updateLastName(userId, newLastName));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.updateLastName(userId, newLastName));
     }
 
     @Test
@@ -221,12 +225,12 @@ class UserServiceImplTest {
         // Prepare
         long userId = 1L;
         var newPhone = "111-222-333";
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.updatePhone(userId, newPhone));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.updatePhone(userId, newPhone));
     }
 
     @Test
@@ -250,12 +254,12 @@ class UserServiceImplTest {
         // Prepare
         long userId = 1L;
         var newAddress = "Liberty Street";
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.updateAddress(userId, newAddress));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.updateAddress(userId, newAddress));
     }
 
     @Test
@@ -279,12 +283,12 @@ class UserServiceImplTest {
         // Prepare
         long userId = 1L;
         var newBirthDate = LocalDate.of(2000, 1, 1);
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.updateBirthdate(userId, newBirthDate));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.updateBirthdate(userId, newBirthDate));
     }
 
     @Test
@@ -308,12 +312,12 @@ class UserServiceImplTest {
         // Prepare
         long userId = 1L;
         var newEmail = "john@example.com";
+        var errorMessage = String.format(USER_WITH_ID_NOT_FOUND, userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Execute & Verify
-        assertThrows("User with ID: 1 was not found!",
-                EntityNotFoundException.class, () -> userService.updateEmail(userId, newEmail));
+        assertThrows(errorMessage, EntityNotFoundException.class, () -> userService.updateEmail(userId, newEmail));
     }
 
     @Test

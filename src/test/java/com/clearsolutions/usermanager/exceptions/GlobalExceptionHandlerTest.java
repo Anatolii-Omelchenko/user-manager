@@ -6,20 +6,15 @@ import com.clearsolutions.usermanager.exceptions.custom.EntityNotFoundException;
 import com.clearsolutions.usermanager.exceptions.errors.ErrorResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
-@SpringBootTest(webEnvironment = NONE)
 @DisplayName("Testing GlobalExceptionHandler")
 class GlobalExceptionHandlerTest {
 
-    @Autowired
-    private GlobalExceptionHandler globalExceptionHandler;
+    private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
     private final String entityType = "User";
     private final String entityDetails = "Id: 999";
