@@ -7,12 +7,15 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.ArrayList;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -48,8 +51,10 @@ public class GlobalExceptionHandler {
             MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleBadRequest(final Exception ex) {
-        Logger.error(ex.getClass().getSimpleName(), ex.getMessage());
-        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        var errorMessage = getValidationErrorMessage(ex);
+
+        Logger.error(ex.getClass().getSimpleName(), errorMessage);
+        ErrorResponse response = new ErrorResponse(errorMessage);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -67,5 +72,26 @@ public class GlobalExceptionHandler {
         Logger.error(ex.getClass().getSimpleName(), ex.getMessage());
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Extracts error messages from the given exception.
+     *
+     * @param ex The exception to extract error messages from.
+     * @return A string containing the extracted error messages joined by commas.
+     */
+    private String getValidationErrorMessage(Exception ex) {
+        var errorMessages = new ArrayList<String>();
+
+        if (ex instanceof MethodArgumentNotValidException validationEx) {
+            var bindingResult = validationEx.getBindingResult();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errorMessages.add(error.getDefaultMessage());
+            }
+        } else {
+            errorMessages.add(ex.getMessage());
+        }
+
+        return String.join(", ", errorMessages);
     }
 }
