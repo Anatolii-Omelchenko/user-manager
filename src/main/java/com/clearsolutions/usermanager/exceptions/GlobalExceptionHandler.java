@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -82,10 +83,12 @@ public class GlobalExceptionHandler {
      */
     private String getValidationErrorMessage(Exception ex) {
         var errorMessages = new ArrayList<String>();
-
         if (ex instanceof MethodArgumentNotValidException validationEx) {
             var bindingResult = validationEx.getBindingResult();
             for (FieldError error : bindingResult.getFieldErrors()) {
+                errorMessages.add(error.getDefaultMessage());
+            }
+            for (ObjectError error : bindingResult.getGlobalErrors()) {
                 errorMessages.add(error.getDefaultMessage());
             }
         } else {
