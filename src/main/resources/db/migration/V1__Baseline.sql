@@ -9,4 +9,7 @@ create table users
     last_name  varchar(255) not null,
     phone      varchar(255),
     primary key (id)
-)
+);
+
+-- indexes
+create index birth_date_idx on users (birth_date)
