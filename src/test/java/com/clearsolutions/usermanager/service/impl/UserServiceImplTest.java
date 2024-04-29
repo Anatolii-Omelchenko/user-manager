@@ -1,5 +1,6 @@
 package com.clearsolutions.usermanager.service.impl;
 
+import com.clearsolutions.usermanager.dto.DateRange;
 import com.clearsolutions.usermanager.exceptions.custom.EntityAlreadyExistsException;
 import com.clearsolutions.usermanager.exceptions.custom.EntityNotFoundException;
 import com.clearsolutions.usermanager.model.User;
@@ -10,6 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -30,6 +35,11 @@ class UserServiceImplTest {
     private UserRepository userRepository;
 
     public static final String USER_WITH_ID_NOT_FOUND = "User with ID: %d was not found!";
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_NUMBER = 0;
+
+    private static final Pageable DEFAULT_PAGE_REQUEST
+            = PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, Sort.unsorted());
 
     @Test
     void testGetExistingUserById_ShouldNotThrowAnyException() {
@@ -60,15 +70,17 @@ class UserServiceImplTest {
         // Prepare
         var from = LocalDate.of(1990, 1, 1);
         var to = LocalDate.of(2000, 1, 1);
-        var expectedUsers = FakeDataGenerator.getUsers();
+        var dateRange = new DateRange(from, to);
+        var users = FakeDataGenerator.getUsers();
+        var expectedUsersPage = new PageImpl<>(users, DEFAULT_PAGE_REQUEST, users.size());
 
-        when(userRepository.findUserByBirthDateBetween(from, to)).thenReturn(expectedUsers);
+        when(userRepository.findUserByBirthDateBetween(from, to, DEFAULT_PAGE_REQUEST)).thenReturn(expectedUsersPage);
 
         // Act
-        var actualUsers = userService.findUsersByBirthDateRange(from, to);
+        var actualUsersPage = userService.findUsersByBirthDateRange(dateRange, DEFAULT_PAGE_REQUEST);
 
         // Assert
-        assertEquals(expectedUsers.size(), actualUsers.size());
+        assertEquals(expectedUsersPage.getContent().size(), actualUsersPage.getContent().size());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.clearsolutions.usermanager.integration;
 
+import com.clearsolutions.usermanager.dto.DateRange;
 import com.clearsolutions.usermanager.exceptions.custom.EntityAlreadyExistsException;
 import com.clearsolutions.usermanager.exceptions.custom.EntityNotFoundException;
 import com.clearsolutions.usermanager.service.UserService;
@@ -9,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -28,18 +32,24 @@ class UserServiceTest {
     private UserService userService;
 
     private static final int TOTAL_USERS = 10;
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_NUMBER = 0;
+
+    private static final Pageable DEFAULT_PAGE_REQUEST
+            = PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, Sort.unsorted());
 
     @Test
     void testFindUsersByBirthDateRange() {
         // Prepare
         var fromDate = LocalDate.of(1900, 1, 1);
         var toDate = LocalDate.of(2024, 1, 1);
+        var dateRange = new DateRange(fromDate, toDate);
 
         // Execute
-        var users = userService.findUsersByBirthDateRange(fromDate, toDate);
+        var usersPage = userService.findUsersByBirthDateRange(dateRange, DEFAULT_PAGE_REQUEST);
 
         // Assert
-        assertEquals(users.size(), TOTAL_USERS);
+        assertEquals(usersPage.getContent().size(), TOTAL_USERS);
     }
 
     @Test

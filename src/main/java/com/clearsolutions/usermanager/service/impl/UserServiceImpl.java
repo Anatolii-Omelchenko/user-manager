@@ -2,15 +2,17 @@ package com.clearsolutions.usermanager.service.impl;
 
 import com.clearsolutions.usermanager.exceptions.custom.EntityAlreadyExistsException;
 import com.clearsolutions.usermanager.exceptions.custom.EntityNotFoundException;
+import com.clearsolutions.usermanager.dto.DateRange;
 import com.clearsolutions.usermanager.model.User;
 import com.clearsolutions.usermanager.repository.UserRepository;
 import com.clearsolutions.usermanager.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Implementation of the service for managing user-related operations.
@@ -28,8 +30,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findUsersByBirthDateRange(LocalDate from, LocalDate to) {
-        return userRepository.findUserByBirthDateBetween(from, to);
+    public Page<User> findUsersByBirthDateRange(DateRange dateRange, Pageable pageable) {
+        return userRepository.findUserByBirthDateBetween(dateRange.from(), dateRange.to(), pageable);
     }
 
     @Override

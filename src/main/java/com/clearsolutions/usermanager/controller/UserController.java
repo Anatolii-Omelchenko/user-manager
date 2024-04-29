@@ -1,6 +1,8 @@
 package com.clearsolutions.usermanager.controller;
 
+import com.clearsolutions.usermanager.dto.DateRange;
 import com.clearsolutions.usermanager.model.User;
+import com.clearsolutions.usermanager.properties.ValidationProperties;
 import com.clearsolutions.usermanager.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -8,7 +10,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +19,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static com.clearsolutions.usermanager.constants.ValidationMessages.*;
-import static com.clearsolutions.usermanager.utils.Validator.validateDateRange;
 import static com.clearsolutions.usermanager.utils.Validator.validateUserAge;
 
 @RestController
@@ -28,26 +29,19 @@ import static com.clearsolutions.usermanager.utils.Validator.validateUserAge;
 @Validated
 public class UserController {
 
-    @Value("${validation.user.minimumAge}")
-    private int minimumAge;
-
     private final UserService userService;
+    private final ValidationProperties validationProperties;
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsersByBirthDateRange(
-            @RequestParam(required = false, defaultValue = "1900-01-01")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false, defaultValue = "2200-01-01")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        validateDateRange(from, to);
-        var users = userService.findUsersByBirthDateRange(from, to);
+    public ResponseEntity<Page<User>> getUsersByBirthDateRange(Pageable pageable, @Valid @ModelAttribute DateRange dateRange) {
+        var users = userService.findUsersByBirthDateRange(dateRange, pageable);
 
         return ResponseEntity.ok(users);
     }
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
-        validateUserAge(user.getBirthDate(), minimumAge);
+        validateUserAge(user.getBirthDate(), validationProperties.getMinimalAge());
         var createdUser = userService.create(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
@@ -55,7 +49,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable @Min(1L) Long id, @RequestBody @Valid User user) {
-        validateUserAge(user.getBirthDate(), minimumAge);
+        validateUserAge(user.getBirthDate(), validationProperties.getMinimalAge());
         var updatedUser = userService.update(id, user);
 
         return ResponseEntity.ok(updatedUser);
@@ -100,7 +94,7 @@ public class UserController {
             @PathVariable @Min(1L) Long id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             @Past(message = BIRTH_DATE_PAST) LocalDate birthDate) {
-        validateUserAge(birthDate, minimumAge);
+        validateUserAge(birthDate, validationProperties.getMinimalAge());
         var updatedUser = userService.updateBirthdate(id, birthDate);
 
         return ResponseEntity.ok(updatedUser);

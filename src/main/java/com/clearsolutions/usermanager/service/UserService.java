@@ -2,10 +2,12 @@ package com.clearsolutions.usermanager.service;
 
 import com.clearsolutions.usermanager.exceptions.custom.EntityAlreadyExistsException;
 import com.clearsolutions.usermanager.exceptions.custom.EntityNotFoundException;
+import com.clearsolutions.usermanager.dto.DateRange;
 import com.clearsolutions.usermanager.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Interface defining the service operations for managing users.
@@ -22,13 +24,13 @@ public interface UserService {
     User getById(Long id) throws EntityNotFoundException;
 
     /**
-     * Retrieves a list of users whose birth-dates fall within the specified range.
+     * Retrieves a page of users whose birth dates fall within the specified range.
      *
-     * @param from The start date of the range.
-     * @param to   The end date of the range.
-     * @return A list of users whose birth-dates fall within the specified range.
+     * @param dateRange The {@link DateRange} representing the range of birth dates to filter by.
+     * @param pageable  The pagination information for the query.
+     * @return A {@link Page} of users whose birth dates fall within the specified range.
      */
-    List<User> findUsersByBirthDateRange(LocalDate from, LocalDate to);
+    Page<User> findUsersByBirthDateRange(DateRange dateRange, Pageable pageable);
 
     /**
      * Creates a new user.

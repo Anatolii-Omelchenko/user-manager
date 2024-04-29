@@ -1,8 +1,10 @@
 package com.clearsolutions.usermanager.controller;
 
+import com.clearsolutions.usermanager.dto.DateRange;
 import com.clearsolutions.usermanager.exceptions.custom.EntityAlreadyExistsException;
 import com.clearsolutions.usermanager.exceptions.custom.EntityNotFoundException;
 import com.clearsolutions.usermanager.model.User;
+import com.clearsolutions.usermanager.properties.ValidationProperties;
 import com.clearsolutions.usermanager.service.UserService;
 import com.clearsolutions.usermanager.testutils.FakeDataGenerator;
 import com.clearsolutions.usermanager.testutils.enums.UserFieldName;
@@ -18,6 +20,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,7 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest({UserController.class, ValidationProperties.class})
 @DisplayName("Testing UserController")
 class UserControllerTest {
 
@@ -48,8 +51,11 @@ class UserControllerTest {
 
     private static List<User> users;
     private static final String REQUEST_URI = "/api/users";
-    private static final LocalDate DEFAULT_FROM_DATE = LocalDate.of(1900, 1, 1);
-    private static final LocalDate DEFAULT_TO_DATE = LocalDate.of(2200, 1, 1);
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_NUMBER = 0;
+
+    private static final Pageable DEFAULT_PAGE_REQUEST
+            = PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, Sort.unsorted());
 
     @BeforeAll
     static void setUp() {
@@ -58,14 +64,16 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    @DisplayName("Method getUsersByBirthDateRange should return 200 with list of users when valid date range provided.")
+    @DisplayName("Method getUsersByBirthDateRange should return 200 with Page of users when valid date range provided.")
     void getUsersByBirthDateRange_WithValidDateRange_ShouldReturnUsers() {
         // Prepare
         var fromDate = "1999-10-01";
         var toDate = "2020-10-01";
+        var dateRange = new DateRange(LocalDate.parse(fromDate), LocalDate.parse(toDate));
+        var usersPage = new PageImpl<>(users, DEFAULT_PAGE_REQUEST, users.size());
 
-        when(userService.findUsersByBirthDateRange(LocalDate.parse(fromDate), LocalDate.parse(toDate)))
-                .thenReturn(users);
+        when(userService.findUsersByBirthDateRange(dateRange, DEFAULT_PAGE_REQUEST))
+                .thenReturn(usersPage);
 
         // Act & Assert
         mvc.perform(get(REQUEST_URI)
@@ -73,23 +81,24 @@ class UserControllerTest {
                         .param("to", toDate))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.size()").value(users.size()))
-                .andExpect(jsonPath("$[0].firstName").value(users.get(0).getFirstName()))
+                .andExpect(jsonPath("$.content.size()").value(users.size()))
+                .andExpect(jsonPath("$.content[0].firstName").value(users.get(0).getFirstName()))
                 .andDo(print());
     }
 
     @SneakyThrows
     @Test
     @DisplayName("""
-            Method getUsersByBirthDateRange should return 200 with empty list
+            Method getUsersByBirthDateRange should return 200 with empty Page of users
             when no users are found for the specified date range.""")
     void getUsersByBirthDateRange_WithValidDateRange_ShouldReturnEmptyList() {
         // Prepare
         var fromDate = "1999-10-01";
         var toDate = "2020-10-01";
+        var dateRange = new DateRange(LocalDate.parse(fromDate), LocalDate.parse(toDate));
 
-        when(userService.findUsersByBirthDateRange(LocalDate.parse(fromDate), LocalDate.parse(toDate)))
-                .thenReturn(List.of());
+        when(userService.findUsersByBirthDateRange(dateRange, DEFAULT_PAGE_REQUEST))
+                .thenReturn(Page.empty());
 
         // Act & Assert
         mvc.perform(get(REQUEST_URI)
@@ -97,7 +106,7 @@ class UserControllerTest {
                         .param("to", toDate))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.size()").value(0))
+                .andExpect(jsonPath("$.content.size()").value(0))
                 .andDo(print());
     }
 
@@ -107,10 +116,10 @@ class UserControllerTest {
     @MethodSource("dateParamsProvider")
     void getUsersByBirthDateRange_ShouldReturnUsers(LocalDate from, LocalDate to) {
         // Prepare
-        var fromDate = from != null ? from : DEFAULT_FROM_DATE;
-        var toDate = to != null ? to : DEFAULT_TO_DATE;
+        var dateRange = new DateRange(from, to);
+        var usersPage = new PageImpl<>(users, DEFAULT_PAGE_REQUEST, users.size());
 
-        when(userService.findUsersByBirthDateRange(fromDate, toDate)).thenReturn(users);
+        when(userService.findUsersByBirthDateRange(dateRange, DEFAULT_PAGE_REQUEST)).thenReturn(usersPage);
 
         // Act & Assert
         mvc.perform(get(REQUEST_URI)
@@ -118,8 +127,8 @@ class UserControllerTest {
                         .param("to", to != null ? to.toString() : ""))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.size()").value(users.size()))
-                .andExpect(jsonPath("$[0].firstName").value(users.get(0).getFirstName()))
+                .andExpect(jsonPath("$.content.size()").value(users.size()))
+                .andExpect(jsonPath("$.content[0].firstName").value(users.get(0).getFirstName()))
                 .andDo(print());
     }
 
@@ -147,7 +156,7 @@ class UserControllerTest {
                 .andDo(print());
 
         // Verify
-        verify(userService, never()).findUsersByBirthDateRange(any(LocalDate.class), any(LocalDate.class));
+        verify(userService, never()).findUsersByBirthDateRange(any(DateRange.class), any(Pageable.class));
     }
 
     private static Stream<Arguments> getInvalidDateRange() {
@@ -837,7 +846,7 @@ class UserControllerTest {
     void updateUserBirthDate_WithValidData_ShouldReturnUpdatedUser() {
         // Prepare
         long userId = 1L;
-        var newBirtDate = LocalDate.of(1999,1,1);
+        var newBirtDate = LocalDate.of(1999, 1, 1);
         var updatedUser = FakeDataGenerator.userBuilder()
                 .birthDate(newBirtDate)
                 .build();
@@ -858,7 +867,7 @@ class UserControllerTest {
     @ValueSource(strings = {"id", "-1", "0", "_1_"})
     void updateUserBirthDate_WithInValidId_ShouldReturnBadRequest(String userId) {
         // Prepare
-        var newBirtDate = LocalDate.of(1999,1,1);
+        var newBirtDate = LocalDate.of(1999, 1, 1);
 
         // Act & Assert
         mvc.perform(patch(REQUEST_URI + "/{id}/birth-date", userId)
@@ -900,7 +909,7 @@ class UserControllerTest {
     void updateUserBirthDate_WhenUserWasNotFound_ShouldReturnNotFound() {
         // Prepare
         long userId = 1L;
-        var newBirtDate = LocalDate.of(1999,1,1);
+        var newBirtDate = LocalDate.of(1999, 1, 1);
         var errorMessage = "User with `Id: " + userId + "` was not found!";
 
         when(userService.updateBirthdate(userId, newBirtDate))
@@ -922,7 +931,7 @@ class UserControllerTest {
     void updateUserBirthDate_WhenUserIsNotAdult_ShouldReturnBadRequest() {
         // Prepare
         long userId = 1L;
-        var newBirtDate = LocalDate.of(2020,1,1);
+        var newBirtDate = LocalDate.of(2020, 1, 1);
         var errorMessage = "User must be at least 18 years old.";
 
         // Act & Assert
