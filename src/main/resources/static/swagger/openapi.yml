@@ -1,0 +1,498 @@
+openapi: 3.0.1
+
+info:
+  title: Users API server
+  version: v1.0.0
+  description: This API provides endpoints for managing user data.
+
+  license:
+    name: All Rights Reserved
+    url: https://github.com/Scream274
+  contact:
+    name: Anatolii Omelchenko
+    email: omelchenko20@gmail.com
+    url: https://github.com/Scream274
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+
+tags:
+  - name: Users
+    description: Endpoints for managing users
+
+paths:
+  /users:
+    get:
+      tags:
+        - Users
+      operationId: getUsersByBirthDateRange
+      summary: Retrieve a specific page of users
+      description: |
+        This endpoint allows you to retrieve a specific page of users 
+        with customizable pagination settings using the query parameters. 
+        The available parameters are:
+        - `page` (integer): The page number to retrieve (starting from 0).
+        - `size` (integer): The number of users per page.
+        - `sort` (string): Sort the results by the specified field name 
+        and direction ('asc' for ascending, 'desc' for descending). 
+        If direction is not provided, 'asc' will be used by default.
+      parameters:
+        - name: pageable
+          in: query
+          description: Pagination settings
+          required: false
+          schema:
+            $ref: "#/components/schemas/Pageable"
+        - name: dateRange
+          in: query
+          description: Date range filter for users created at or between the specified birth dates.
+          required: false
+          schema:
+            $ref: "#/components/schemas/DateRange"
+      responses:
+        "200":
+          description: OK. Successful retrieval of users page.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageOfUsers"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags:
+        - Users
+      operationId: createUser
+      summary: Create a new user.
+      description: This endpoint allows you to create a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: Created. User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /users/{id}:
+    put:
+      tags:
+        - Users
+      operationId: updateUser
+      summary: Update a specific user by ID
+      description: This endpoint allows you to update a specific user by ID
+      parameters:
+        - name: id
+          in: path
+          description: Users ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      requestBody:
+        description: User information for update.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: OK. User successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Users
+      operationId: deleteUser
+      summary: Delete a specific user by ID
+      description: This endpoint allows you to delete a specific user by ID
+      parameters:
+        - name: id
+          in: path
+          description: Users ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        "204":
+          description: OK. User successfully deleted.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /users/{id}/first-name:
+    patch:
+      tags:
+        - Users
+      operationId: updateUserFirstName
+      summary: Update the first name of a specific user.
+      description: This endpoint allows you to update the first name of a specific user.
+      parameters:
+        - name: id
+          in: path
+          description: User's ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: firstName
+          in: query
+          description: New first name for the user
+          required: true
+          schema:
+            type: string
+            example: John
+      responses:
+        "200":
+          description: OK. User's first name successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /users/{id}/last-name:
+    patch:
+      tags:
+        - Users
+      operationId: updateUserLastName
+      summary: Update the last name of a specific user.
+      description: This endpoint allows you to update the last name of a specific user.
+      parameters:
+        - name: id
+          in: path
+          description: User's ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: lastName
+          in: query
+          description: New last name for the user
+          required: true
+          schema:
+            type: string
+            example: Doe
+      responses:
+        "200":
+          description: OK. User's last name successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /users/{id}/email:
+    patch:
+      tags:
+        - Users
+      operationId: updateUserEmail
+      summary: Update a specific users email.
+      description: This endpoint allows you to update a specific users email.
+      parameters:
+        - name: id
+          in: path
+          description: Users ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: email
+          in: query
+          description: New email for the user
+          required: true
+          schema:
+            type: string
+            description: Users email
+            example: email@example.com
+      responses:
+        "200":
+          description: OK. User successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /users/{id}/birth-date:
+    patch:
+      tags:
+        - Users
+      operationId: updateUserBirthDate
+      summary: Update the birth date of a specific user.
+      description: This endpoint allows you to update the birth date of a specific user.
+      parameters:
+        - name: id
+          in: path
+          description: User's ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: birthDate
+          in: query
+          description: New birth date for the user
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 1999-01-01
+      responses:
+        "200":
+          description: OK. User's birth date successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /users/{id}/address:
+    patch:
+      tags:
+        - Users
+      operationId: updateUserAddress
+      summary: Update a specific users address.
+      description: This endpoint allows you to update a specific users address.
+      parameters:
+        - name: id
+          in: path
+          description: Users ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: address
+          in: query
+          description: New address for the user
+          required: true
+          schema:
+            type: string
+            description: Users address
+            example: Liberty Street
+      responses:
+        "200":
+          description: OK. User successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /users/{id}/phone:
+    patch:
+      tags:
+        - Users
+      operationId: updateUserPhone
+      summary: Update the phone number of a specific user.
+      description: This endpoint allows you to update the phone number of a specific user.
+      parameters:
+        - name: id
+          in: path
+          description: User's ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: phone
+          in: query
+          description: New phone number for the user
+          required: true
+          schema:
+            type: string
+            example: 111-222-333
+      responses:
+        "200":
+          description: OK. User's phone number successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The unique identifier for the user.
+        firstName:
+          type: string
+          description: The first name of the user.
+        lastName:
+          type: string
+          description: The last name of the user.
+        email:
+          type: string
+          format: email
+          description: The email address of the user.
+        birthDate:
+          type: string
+          format: date
+          description: The birth date of the user.
+        address:
+          type: string
+          description: The address of the user.
+        phone:
+          type: string
+          description: The phone number of the user.
+      required:
+        - firstName
+        - lastName
+        - birthDate
+        - email
+    DateRange:
+      description: Date range filter for querying resources.
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          description: The start date of the range.
+          type: string
+          format: date
+          example: "1991-09-27"
+        to:
+          description: The end date of the range.
+          type: string
+          format: date
+          example: "2000-11-11"
+    Pageable:
+      type: object
+      description: Information about the pagination settings.
+      properties:
+        page:
+          type: integer
+          format: int32
+          description: Current page number.
+        size:
+          type: integer
+          format: int32
+          description: Number of publications per page.
+        sort:
+          type: string
+          example: title,DESC
+    PageOfUsers:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+          description: List of users on the current page.
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+        totalPages:
+          type: integer
+          description: Total number of pages.
+        totalElements:
+          type: integer
+          description: Total number of elements across all pages.
+        last:
+          type: boolean
+          description: Indicates whether this is the last page.
+        size:
+          type: integer
+          description: Number of elements on the current page.
+        number:
+          type: integer
+          description: Index of the current page (zero-based).
+        numberOfElements:
+          type: integer
+          description: Number of elements currently on this page.
+        first:
+          type: boolean
+          description: Indicates whether this is the first page.
+        empty:
+          type: boolean
+          description: Indicates whether the page is empty.
+    ErrorResponse:
+      description: Object containing an error message and timestamp
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          description: Error message
+          type: string
+          minLength: 1
+          maxLength: 255
+        timestamp:
+          description: Timestamp when the error occurred
+          type: integer
+          format: int64
+          minimum: 1
+  responses:
+    BadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalServerError:
+      description: Internal server error. Please try again later
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

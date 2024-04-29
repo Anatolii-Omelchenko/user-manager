@@ -15,3 +15,8 @@ spring:
 app:
   validation:
     minimalAge: 18
+
+springdoc:
+  swagger-ui:
+    path: /api/swagger-ui.html
+    url: /swagger/openapi.yml
