@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: user-manager
   datasource:
     url: "${DATABASE_URL:jdbc:postgresql://localhost:5432/users_db}"
     username: "${DATABASE_USERNAME:postgres}"
@@ -9,9 +11,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: 'true'
     show-sql: true
-  application:
-    name: user-manager
 
-validation:
-  user:
-    minimumAge: 18
+app:
+  validation:
+    minimalAge: 18

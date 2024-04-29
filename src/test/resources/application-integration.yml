@@ -4,6 +4,6 @@ spring:
     username: postgres
     password: postgres
 
-validation:
-  user:
-    minimumAge: 18
+app:
+  validation:
+    minimalAge: 18
