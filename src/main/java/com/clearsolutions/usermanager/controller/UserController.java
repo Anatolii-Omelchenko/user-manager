@@ -1,8 +1,8 @@
 package com.clearsolutions.usermanager.controller;
 
 import com.clearsolutions.usermanager.dto.DateRange;
+import com.clearsolutions.usermanager.dto.annotation.OnlyAdult;
 import com.clearsolutions.usermanager.model.User;
-import com.clearsolutions.usermanager.properties.ValidationProperties;
 import com.clearsolutions.usermanager.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 import static com.clearsolutions.usermanager.constants.ValidationMessages.*;
-import static com.clearsolutions.usermanager.utils.Validator.validateUserAge;
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,7 +29,6 @@ import static com.clearsolutions.usermanager.utils.Validator.validateUserAge;
 public class UserController {
 
     private final UserService userService;
-    private final ValidationProperties validationProperties;
 
     @GetMapping
     public ResponseEntity<Page<User>> getUsersByBirthDateRange(Pageable pageable, @Valid @ModelAttribute DateRange dateRange) {
@@ -41,7 +39,6 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
-        validateUserAge(user.getBirthDate(), validationProperties.getMinimalAge());
         var createdUser = userService.create(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
@@ -49,7 +46,6 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable @Min(1L) Long id, @RequestBody @Valid User user) {
-        validateUserAge(user.getBirthDate(), validationProperties.getMinimalAge());
         var updatedUser = userService.update(id, user);
 
         return ResponseEntity.ok(updatedUser);
@@ -93,8 +89,7 @@ public class UserController {
     public ResponseEntity<User> updateUserBirthDate(
             @PathVariable @Min(1L) Long id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            @Past(message = BIRTH_DATE_PAST) LocalDate birthDate) {
-        validateUserAge(birthDate, validationProperties.getMinimalAge());
+            @Past(message = BIRTH_DATE_PAST) @OnlyAdult LocalDate birthDate) {
         var updatedUser = userService.updateBirthdate(id, birthDate);
 
         return ResponseEntity.ok(updatedUser);

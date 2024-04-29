@@ -932,7 +932,7 @@ class UserControllerTest {
         // Prepare
         long userId = 1L;
         var newBirtDate = LocalDate.of(2020, 1, 1);
-        var errorMessage = "User must be at least 18 years old.";
+        var errorMessage = "updateUserBirthDate.birthDate: User must be at least 18 years old";
 
         // Act & Assert
         mvc.perform(patch(REQUEST_URI + "/{id}/birth-date", userId)

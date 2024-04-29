@@ -1,12 +1,20 @@
 package com.clearsolutions.usermanager.properties;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "app.validation")
 @Data
 public class ValidationProperties {
-    private Integer minimalAge;
+
+    @Getter
+    private static Integer minimalAge;
+
+    @Value("${app.validation.minimalAge}")
+    public void setMinimalAge(Integer minimalAge) {
+        ValidationProperties.minimalAge = minimalAge;
+    }
+
 }

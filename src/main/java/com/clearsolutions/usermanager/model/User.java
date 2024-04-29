@@ -1,5 +1,6 @@
 package com.clearsolutions.usermanager.model;
 
+import com.clearsolutions.usermanager.dto.annotation.OnlyAdult;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +43,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @OnlyAdult
     @NotNull(message = BIRTH_DATE_REQUIRED)
     @Past(message = BIRTH_DATE_PAST)
     @Column(nullable = false)
