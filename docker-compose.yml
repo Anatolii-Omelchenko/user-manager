@@ -1,12 +1,35 @@
-version: "3"
-
 services:
+  users-api:
+    image: ghcr.io/scream274/user-manager:main
+    ports:
+      - 8080:8080
+    environment:
+      DATABASE_URL: jdbc:postgresql://database:5432/${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: on-failure
+
   database:
     image: postgres:16-alpine
-    ports:
-      - 5432:5432
     environment:
+      PGTZ: "Europe/Kyiv"
+      TZ: "Europe/Kyiv"
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
     restart: on-failure
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db:
+    driver: local
