@@ -1,7 +1,7 @@
-FROM openjdk:17-jdk-slim AS build
+FROM maven:3.8-amazoncorretto-17 AS build
 WORKDIR /app
 COPY . .
-RUN ./mvnw clean install -DskipTests
+RUN mvn clean install -DskipTests
 
 FROM openjdk:17-jdk-slim
 WORKDIR /app
